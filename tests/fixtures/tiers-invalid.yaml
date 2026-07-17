@@ -1,0 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────
+# tiers-invalid.yaml — broken config for validation tests
+#
+# This fixture has multiple intentional errors:
+#   - max_tokens is 0 (must be positive)
+#   - use_for is empty (must not be empty)
+#   - provider is "unknown_provider" (not a built-in adapter name)
+#
+# Used by test_config.py to verify that validate() catches all errors.
+# ─────────────────────────────────────────────────────────────────────
+
+tiers:
+  empty_tier:
+    model: test-model
+    max_tokens: 0                # ERROR: must be positive
+    use_for: []                  # ERROR: must not be empty
+    provider: unknown_provider   # ERROR: not a known adapter

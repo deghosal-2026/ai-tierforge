@@ -1,0 +1,62 @@
+# ─────────────────────────────────────────────────────────────────────
+# pyproject.toml — ai-tierforge build configuration
+#
+# This file defines the package metadata, dependencies, entry points,
+# and tool configuration (mypy) for ai-tierforge.
+#
+# Design constraints (per PRD):
+#   - Runtime deps: only pyyaml + requests (NFR6: minimal dependencies)
+#   - No click (CLI uses stdlib argparse)
+#   - No httpx (HTTP uses requests)
+#   - Python 3.11+ (uses dataclass slots, type X = Y, match statements)
+# ─────────────────────────────────────────────────────────────────────
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-tierforge"
+version = "0.1.0"
+description = "Multi-model LLM tier router with cost-per-completed-task accounting"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+
+# Runtime dependencies — kept to exactly 2 per PRD NFR6
+dependencies = [
+    "pyyaml>=6.0",       # YAML config parsing
+    "requests>=2.32",    # HTTP calls to LLM providers (OpenAI-compat + OMLX)
+]
+
+# Development dependencies — not installed by end users
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",         # Testing framework
+    "pytest-cov>=5",     # Coverage reporting
+    "requests-mock>=1.12", # HTTP mocking for OMLX adapter tests
+    "ruff>=0.5",         # Linting
+    "mypy>=1.10",        # Type checking
+]
+
+# CLI entry point — enables `ai-tierforge` command after pip install
+[project.scripts]
+ai-tierforge = "ai_tierforge.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/deghosal-2026/ai-tierforge"
+
+# ─── mypy configuration ───────────────────────────────────────────────
+# Type-check only the src/ directory.  Tests are not type-checked
+# (they use fixtures and dynamic imports that are harder to type).
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true    # Don't fail on untyped third-party libs
+files = "src/"
+
+# ─── setuptools configuration ─────────────────────────────────────────
+# Tell setuptools to look for the package under src/ (src layout)
+[tool.setuptools.packages.find]
+where = ["src"]
