@@ -1,0 +1,27 @@
+# ─────────────────────────────────────────────────────────────────────
+# tiers-custom-tiers.yaml — non-standard tier names for ordering tests
+#
+# Verifies that tier priority is derived from YAML position, not from
+# hardcoded "architect/workhorse/utility" names.  Custom tier names
+# work automatically — order is positional.
+#
+# Tier order (from YAML position):
+#   premium (0, highest) → standard (1) → economy (2, lowest)
+# ─────────────────────────────────────────────────────────────────────
+
+tiers:
+  premium:
+    model: glm-5.2
+    max_tokens: 16000
+    use_for: [spec, architecture]
+    provider: openai-compatible
+  standard:
+    model: deepseek-v4-flash
+    max_tokens: 8000
+    use_for: [code, tests]
+    provider: openai-compatible
+  economy:
+    model: omlx:qwen2.5-coder:7b
+    max_tokens: 4000
+    use_for: [tickets]
+    provider: omlx

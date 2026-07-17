@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────────
+# tiers.yaml — ai-tierforge valid 3-tier config for testing
+#
+# This fixture matches SPEC §13.1 and is used by test_config.py and
+# test_router.py to verify config loading and routing.
+#
+# Tier order (from YAML position) = escalation priority:
+#   architect (0, highest) → workhorse (1) → utility (2, lowest)
+# ─────────────────────────────────────────────────────────────────────
+
+tiers:
+  architect:
+    model: glm-5.2               # GLM-5.2 via OpenAI-compatible API
+    max_tokens: 16000            # High token limit for reasoning tasks
+    use_for:                     # Task types this tier handles
+      - spec
+      - architecture
+      - review
+      - escalation
+    provider: openai-compatible  # Uses OpenAICompatAdapter
+
+  workhorse:
+    model: deepseek-v4-flash     # DeepSeek Flash — cheap and fast
+    max_tokens: 8000
+    use_for: [code, tests, refactor, drafts]
+    provider: openai-compatible
+
+  utility:
+    model: omlx:qwen2.5-coder:7b  # Local Qwen via OMLX (zero cost)
+    max_tokens: 4000
+    use_for: [tickets, summaries, status, admin]
+    provider: omlx                # Uses OMLXAdapter
+    endpoint: http://localhost:11434  # OMLX default endpoint
+
+# Escalation SLO — alert if >30% of tasks escalate
+escalation:
+  default_threshold: 0.30
+  max_retries: 3                 # Retries per tier before escalating
+
+# Router — total attempts across all tiers before RouterExhaustedError
+router:
+  max_retries: 3
+
+# Budget enforcement — per-task downgrade, per-day warning
+budgets:
+  per_task:
+    limit: 0.10                  # $0.10 per task
+    on_exceed: downgrade         # Drop to cheaper tier when exceeded
+  per_day:
+    limit: 5.00                  # $5.00 per day
+    on_exceed: warn              # Just warn, don't block
+
+# Logging — structured JSON to stdout
+logging:
+  routing: true                  # Log routing decisions
+  failover: true                 # Log failover events
+  level: info                    # info | debug
+  output: stdout                 # stdout | file path

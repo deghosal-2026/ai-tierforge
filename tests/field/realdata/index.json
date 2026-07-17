@@ -1,0 +1,42 @@
+{
+  "fetched_at": "2026-07-17T02:10:15Z",
+  "limit_per_repo": 400,
+  "repos": {
+    "fastapi": "fastapi/fastapi",
+    "pydantic": "pydantic/pydantic",
+    "httpx": "encode/httpx",
+    "rich": "Textualize/rich"
+  },
+  "per_repo": {
+    "fastapi": {
+      "issues": 400,
+      "prs": 400,
+      "code": 2
+    },
+    "pydantic": {
+      "issues": 400,
+      "prs": 400,
+      "code": 2
+    },
+    "httpx": {
+      "issues": 0,
+      "prs": 400,
+      "code": 2
+    },
+    "rich": {
+      "issues": 400,
+      "prs": 400,
+      "code": 2
+    }
+  },
+  "totals": {
+    "issues": 1200,
+    "prs": 1600,
+    "code_snippets": 8
+  },
+  "files": {
+    "issues": "issues.json",
+    "prs": "prs.json",
+    "code_snippets": "code_snippets.json"
+  }
+}
