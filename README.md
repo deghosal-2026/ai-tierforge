@@ -6,6 +6,7 @@ Route LLM calls to the right model. Track what each task actually costs. Catch w
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/ai-tierforge)](https://pypi.org/project/ai-tierforge/)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13800/badge)](https://www.bestpractices.dev/projects/13800)
 
 ## Why this exists
 
