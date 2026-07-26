@@ -60,3 +60,7 @@ files = "src/"
 # Tell setuptools to look for the package under src/ (src layout)
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101", "B311"]

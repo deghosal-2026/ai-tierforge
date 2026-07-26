@@ -35,3 +35,24 @@ jobs:
       - run: pip install build twine
       - run: python -m build
       - run: python -m twine upload --username __token__ --password "${{ secrets.PYPI_API_TOKEN }}" dist/*
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit bandit
+      - run: pip-audit
+      - run: bandit -c pyproject.toml -r src/ -ll
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: trufflesecurity/trufflehog@v3
+        with:
+          extra_args: --results=verified --no-fail
