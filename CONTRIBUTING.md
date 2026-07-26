@@ -50,9 +50,13 @@ Conventional commits preferred:
 
 ## Code conventions
 
-- `Decimal` for all monetary values — never `float`
-- `argparse` for CLI (stdlib), not `click`
-- Type annotations on all public functions
+All contributions must follow these coding standards:
+
+- **Python:** [PEP 8](https://peps.python.org/pep-0008/) via Ruff with the ruleset in [`pyproject.toml`](pyproject.toml).
+- **Type safety:** Type annotations on all public functions.
+- **Monetary values:** Use `Decimal` for all monetary values — never `float`.
+- **CLI:** Use `argparse` (stdlib), not `click`.
+- **Commit messages:** [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `test:`).
 - Thread safety via `threading.Lock` per scope
 - `ruff` and `mypy` strict must pass
 
