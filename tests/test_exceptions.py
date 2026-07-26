@@ -97,10 +97,13 @@ def test_router_exhausted_error_with_trace():
     joined with " → ".  This shows the full escalation path for debugging.
     """
     from ai_tierforge.types import EscalationEvent, EscalationCause
+
     trace = [
         EscalationEvent(
-            task_id="task-123", task_type="code",
-            from_tier="workhorse", to_tier="architect",
+            task_id="task-123",
+            task_type="code",
+            from_tier="workhorse",
+            to_tier="architect",
             cause=EscalationCause.RETRY_EXCEEDED,
         ),
     ]

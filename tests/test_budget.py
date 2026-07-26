@@ -12,7 +12,9 @@ def _enforcer(**overrides):
     config = BudgetsConfig(
         per_task=BudgetConfig(limit=Decimal("10"), on_exceed=OnExceedAction.WARN),
         per_day=BudgetConfig(limit=Decimal("100"), on_exceed=OnExceedAction.DOWNGRADE),
-        per_project=BudgetConfig(limit=Decimal("1000"), on_exceed=OnExceedAction.HARD_STOP),
+        per_project=BudgetConfig(
+            limit=Decimal("1000"), on_exceed=OnExceedAction.HARD_STOP
+        ),
     )
     return BudgetEnforcer(config, ["a", "w", "u"])
 

@@ -66,8 +66,11 @@ class BudgetEnforcer:
         # scope → {period → spend} — defaultdict auto-creates the
         # inner dict with all periods zeroed on first access
         self._spend: dict[ScopeId, dict[str, Decimal]] = defaultdict(
-            lambda: {"per_task": Decimal("0"), "per_day": Decimal("0"),
-                      "per_project": Decimal("0")}
+            lambda: {
+                "per_task": Decimal("0"),
+                "per_day": Decimal("0"),
+                "per_project": Decimal("0"),
+            }
         )
         # scope → current tier name (for DOWNGRADE targeting)
         self._current_tiers: dict[ScopeId, TierName] = {}
@@ -163,7 +166,9 @@ class BudgetEnforcer:
 
             return most_restrictive
 
-    def record_spend(self, scope: ScopeId, amount: Decimal, tier: TierName = "") -> None:
+    def record_spend(
+        self, scope: ScopeId, amount: Decimal, tier: TierName = ""
+    ) -> None:
         with self._get_lock(scope):
             usage = self._spend[scope]
             for period in ("per_task", "per_day", "per_project"):

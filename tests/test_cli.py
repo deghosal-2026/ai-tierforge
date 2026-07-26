@@ -116,15 +116,17 @@ tiers:
     assert "ERROR" in captured.err
 
 
-def _with_mock(
-    monkeypatch, capsys, argv
-):
+def _with_mock(monkeypatch, capsys, argv):
     """Run CLI with mocked HTTP and env var for adapter calls."""
     monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
-    mock_resp = type("Response", (), {
-        "status_code": 200,
-        "json": lambda self: MOCK_OPENAI_RESPONSE,
-    })()
+    mock_resp = type(
+        "Response",
+        (),
+        {
+            "status_code": 200,
+            "json": lambda self: MOCK_OPENAI_RESPONSE,
+        },
+    )()
     with patch("requests.post", return_value=mock_resp):
         rc = main(argv)
     captured = capsys.readouterr()
@@ -134,7 +136,8 @@ def _with_mock(
 def test_route_prints_result(monkeypatch, capsys):
     path = make_config(VALID_CONFIG)
     rc, captured = _with_mock(
-        monkeypatch, capsys,
+        monkeypatch,
+        capsys,
         ["--config", path, "route", "code", "hello"],
     )
     assert rc == 0
@@ -146,7 +149,8 @@ def test_route_prints_result(monkeypatch, capsys):
 def test_report_by_task(monkeypatch, capsys):
     path = make_config(VALID_CONFIG)
     rc, captured = _with_mock(
-        monkeypatch, capsys,
+        monkeypatch,
+        capsys,
         ["--config", path, "route", "code", "x"],
     )
     assert rc == 0
@@ -162,11 +166,13 @@ def test_config_not_found(capsys):
 def test_budget_check(monkeypatch, capsys):
     path = make_config(VALID_CONFIG)
     _with_mock(
-        monkeypatch, capsys,
+        monkeypatch,
+        capsys,
         ["--config", path, "route", "code", "x", "--scope", "test-s"],
     )
     rc, captured = _with_mock(
-        monkeypatch, capsys,
+        monkeypatch,
+        capsys,
         ["--config", path, "budget", "check", "--scope", "test-s"],
     )
     assert rc == 0
@@ -176,11 +182,13 @@ def test_budget_check(monkeypatch, capsys):
 def test_budget_reset(monkeypatch, capsys):
     path = make_config(VALID_CONFIG)
     _with_mock(
-        monkeypatch, capsys,
+        monkeypatch,
+        capsys,
         ["--config", path, "route", "code", "x", "--scope", "reset-s"],
     )
     rc, captured = _with_mock(
-        monkeypatch, capsys,
+        monkeypatch,
+        capsys,
         ["--config", path, "budget", "reset", "--scope", "reset-s"],
     )
     assert rc == 0

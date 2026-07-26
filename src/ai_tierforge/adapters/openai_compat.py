@@ -54,14 +54,14 @@ from ai_tierforge.types import ModelCall
 # model names.
 DEFAULT_PRICING: dict[str, tuple[Decimal, Decimal]] = {
     # model: (cost_per_token_in, cost_per_token_out)
-    "glm-5.2":              (Decimal("0.000003"),   Decimal("0.000008")),
-    "deepseek-v4-flash":    (Decimal("0.00000014"), Decimal("0.00000028")),
-    "deepseek-v4-pro":      (Decimal("0.0000015"),  Decimal("0.000004")),
-    "gpt-4o":               (Decimal("0.0000025"),  Decimal("0.00001")),
-    "gpt-4o-mini":          (Decimal("0.00000015"), Decimal("0.0000006")),
+    "glm-5.2": (Decimal("0.000003"), Decimal("0.000008")),
+    "deepseek-v4-flash": (Decimal("0.00000014"), Decimal("0.00000028")),
+    "deepseek-v4-pro": (Decimal("0.0000015"), Decimal("0.000004")),
+    "gpt-4o": (Decimal("0.0000025"), Decimal("0.00001")),
+    "gpt-4o-mini": (Decimal("0.00000015"), Decimal("0.0000006")),
     # Anthropic via OpenAI-compatible proxies (LiteLLM, Portkey)
-    "claude-sonnet-4":      (Decimal("0.000003"),   Decimal("0.000015")),
-    "claude-haiku-3.5":     (Decimal("0.00000025"), Decimal("0.00000125")),
+    "claude-sonnet-4": (Decimal("0.000003"), Decimal("0.000015")),
+    "claude-haiku-3.5": (Decimal("0.00000025"), Decimal("0.00000125")),
 }
 
 
@@ -245,7 +245,7 @@ class OpenAICompatAdapter:
 
             # ── Exponential backoff before retry ─────────────────────
             if attempt < 2:
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
 
         # ── All retries exhausted ────────────────────────────────────
         return ModelCall(

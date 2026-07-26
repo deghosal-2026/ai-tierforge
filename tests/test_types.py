@@ -148,11 +148,15 @@ def test_cost_report_cost_per_type():
     report = CostReport(
         per_task={
             "t1": TaskCost(
-                task_id="t1", tier="workhorse", task_type="code",
+                task_id="t1",
+                tier="workhorse",
+                task_type="code",
                 total_cost=Decimal("0.10"),
             ),
             "t2": TaskCost(
-                task_id="t2", tier="architect", task_type="spec",
+                task_id="t2",
+                tier="architect",
+                task_type="spec",
                 total_cost=Decimal("0.20"),
             ),
         },
@@ -170,17 +174,25 @@ def test_cost_report_escalation_rate():
     report = CostReport(
         per_task={
             "t1": TaskCost(
-                task_id="t1", tier="workhorse", task_type="code",
+                task_id="t1",
+                tier="workhorse",
+                task_type="code",
                 total_cost=Decimal("0.10"),
                 # This task had an escalation
-                escalations=[EscalationEvent(
-                    task_id="t1", task_type="code",
-                    from_tier="workhorse", to_tier="architect",
-                    cause=EscalationCause.RETRY_EXCEEDED,
-                )],
+                escalations=[
+                    EscalationEvent(
+                        task_id="t1",
+                        task_type="code",
+                        from_tier="workhorse",
+                        to_tier="architect",
+                        cause=EscalationCause.RETRY_EXCEEDED,
+                    )
+                ],
             ),
             "t2": TaskCost(
-                task_id="t2", tier="architect", task_type="code",
+                task_id="t2",
+                tier="architect",
+                task_type="code",
                 total_cost=Decimal("0.05"),
                 # This task had no escalations
             ),
@@ -217,8 +229,10 @@ def test_tier_forge_config_defaults():
     config = TierForgeConfig(
         tiers={
             "workhorse": TierConfig(
-                model="test", max_tokens=1000,
-                use_for=["code"], provider="test",
+                model="test",
+                max_tokens=1000,
+                use_for=["code"],
+                provider="test",
             ),
         },
     )

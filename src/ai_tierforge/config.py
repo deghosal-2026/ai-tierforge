@@ -233,9 +233,7 @@ class TierForgeConfigLoader:
         # ── Escalation validation ────────────────────────────────────
         thresh = config.escalation.default_threshold
         if not (0.0 <= thresh <= 1.0):
-            errors.append(
-                "escalation: default_threshold must be between 0.0 and 1.0"
-            )
+            errors.append("escalation: default_threshold must be between 0.0 and 1.0")
 
         if config.escalation.max_retries < 1:
             errors.append("escalation: max_retries must be >= 1")
@@ -253,9 +251,7 @@ class TierForgeConfigLoader:
         ]:
             if bc is not None:
                 if bc.limit < 0:
-                    errors.append(
-                        f"budget '{scope_name}': limit must be non-negative"
-                    )
+                    errors.append(f"budget '{scope_name}': limit must be non-negative")
                 # on_exceed is already validated at parse time (ValueError
                 # from OnExceedAction constructor), but we check the type
                 # here for safety.

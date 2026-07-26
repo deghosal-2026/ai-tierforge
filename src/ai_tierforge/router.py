@@ -134,9 +134,7 @@ class TierRouter:
         # Internal components — each handles one concern
         self._cost_ledger = CostLedger()
         self._budget_enforcer = BudgetEnforcer(config.budgets, tier_order)
-        self._escalation_tracker = EscalationTracker(
-            config.escalation, tier_order
-        )
+        self._escalation_tracker = EscalationTracker(config.escalation, tier_order)
         self._routing_logger = RoutingLogger(config.logging)
 
         for name, adapter in self._adapters.items():
@@ -164,9 +162,7 @@ class TierRouter:
         config = TierForgeConfigLoader.from_yaml(config_path)
         return cls(config, adapters)
 
-    def tier_for_task(
-        self, task_type: str
-    ) -> tuple[TierName, TierConfig]:
+    def tier_for_task(self, task_type: str) -> tuple[TierName, TierConfig]:
         """Find the first tier whose use_for list contains task_type.
 
         Iterates tiers in YAML insertion order and returns the first
@@ -239,13 +235,15 @@ class TierRouter:
 
         # Log the initial routing decision — this is an intentional
         # ROUTE, not a FAILOVER
-        self._routing_logger.log_route(RouteLogEntry(
-            task_id=task_id,
-            tier=tier_name,
-            model=tier_config.model,
-            decision=RouteDecisionType.ROUTE,
-            reason=f"matched task_type '{task_type}'",
-        ))
+        self._routing_logger.log_route(
+            RouteLogEntry(
+                task_id=task_id,
+                tier=tier_name,
+                model=tier_config.model,
+                decision=RouteDecisionType.ROUTE,
+                reason=f"matched task_type '{task_type}'",
+            )
+        )
 
         self._escalation_tracker.record_task(task_id, task_type, tier_name)
 
@@ -277,13 +275,15 @@ class TierRouter:
                     new_tier = budget_check.new_tier
                     if new_tier and new_tier in self._config.tiers:
                         # Log as a FAILOVER since it's forced by budget
-                        self._routing_logger.log_failover(RouteLogEntry(
-                            task_id=task_id,
-                            tier=new_tier,
-                            model=self._config.tiers[new_tier].model,
-                            decision=RouteDecisionType.FAILOVER,
-                            reason=f"budget: {budget_check.reason}",
-                        ))
+                        self._routing_logger.log_failover(
+                            RouteLogEntry(
+                                task_id=task_id,
+                                tier=new_tier,
+                                model=self._config.tiers[new_tier].model,
+                                decision=RouteDecisionType.FAILOVER,
+                                reason=f"budget: {budget_check.reason}",
+                            )
+                        )
                         current_tier = new_tier
                         current_config = self._config.tiers[new_tier]
                         downgraded = True
@@ -292,8 +292,7 @@ class TierRouter:
             adapter = self._adapters.get(current_config.provider)
             if adapter is None:
                 raise ValueError(
-                    f"no adapter registered for provider "
-                    f"'{current_config.provider}'"
+                    f"no adapter registered for provider '{current_config.provider}'"
                 )
 
             # Make the actual LLM call through the adapter
@@ -332,17 +331,17 @@ class TierRouter:
 
             # ── Success: finalise and return ─────────────────────────
             if call_result.success:
-                self._cost_ledger.finalize_task(
-                    task_id, task_type, current_tier
-                )
+                self._cost_ledger.finalize_task(task_id, task_type, current_tier)
                 # Log the successful completion as a ROUTE entry
-                self._routing_logger.log_route(RouteLogEntry(
-                    task_id=task_id,
-                    tier=current_tier,
-                    model=current_config.model,
-                    decision=RouteDecisionType.ROUTE,
-                    reason="task completed",
-                ))
+                self._routing_logger.log_route(
+                    RouteLogEntry(
+                        task_id=task_id,
+                        tier=current_tier,
+                        model=current_config.model,
+                        decision=RouteDecisionType.ROUTE,
+                        reason="task completed",
+                    )
+                )
                 return call_result
 
             # ── Failure: decide whether to retry or escalate ─────────
@@ -391,13 +390,15 @@ class TierRouter:
                 self._cost_ledger.record_escalation(task_id, event)
 
                 # Log the escalation as a FAILOVER event
-                self._routing_logger.log_failover(RouteLogEntry(
-                    task_id=task_id,
-                    tier=next_tier,
-                    model=self._config.tiers[next_tier].model,
-                    decision=RouteDecisionType.FAILOVER,
-                    reason=f"escalation: {call_result.error}",
-                ))
+                self._routing_logger.log_failover(
+                    RouteLogEntry(
+                        task_id=task_id,
+                        tier=next_tier,
+                        model=self._config.tiers[next_tier].model,
+                        decision=RouteDecisionType.FAILOVER,
+                        reason=f"escalation: {call_result.error}",
+                    )
+                )
 
                 # Switch to the new tier and reset both retry counters
                 # — the new tier gets its own full retry budget (BUG-036:

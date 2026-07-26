@@ -182,16 +182,28 @@ def mock_adapters():
             attempt = self._call_count - 1
             if self._call_count in self._fail_times:
                 return ModelCall(
-                    task_id="", task_type="", tier="", model=model,
-                    prompt=prompt, success=False, error="mock_failure",
-                    tokens_in=50, tokens_out=0,
+                    task_id="",
+                    task_type="",
+                    tier="",
+                    model=model,
+                    prompt=prompt,
+                    success=False,
+                    error="mock_failure",
+                    tokens_in=50,
+                    tokens_out=0,
                     attempt=attempt,
                 )
             return ModelCall(
-                task_id="", task_type="", tier="", model=model,
-                prompt=prompt, response="mock response",
-                tokens_in=100, tokens_out=50,
-                cost_in=Decimal("0"), cost_out=Decimal("0"),
+                task_id="",
+                task_type="",
+                tier="",
+                model=model,
+                prompt=prompt,
+                response="mock response",
+                tokens_in=100,
+                tokens_out=50,
+                cost_in=Decimal("0"),
+                cost_out=Decimal("0"),
                 success=True,
                 attempt=attempt,
             )
@@ -218,6 +230,7 @@ def router(sample_config, mock_adapters):
     — no network calls are made.
     """
     from ai_tierforge.router import TierRouter
+
     return TierRouter(sample_config, mock_adapters)
 
 
@@ -240,8 +253,13 @@ def failing_adapters():
 
         def call(self, model, prompt, max_tokens, **kwargs):
             return ModelCall(
-                task_id="", task_type="", tier="", model=model,
-                prompt=prompt, success=False, error="mock_failure",
+                task_id="",
+                task_type="",
+                tier="",
+                model=model,
+                prompt=prompt,
+                success=False,
+                error="mock_failure",
             )
 
         def calculate_cost(self, model, tokens_in, tokens_out):

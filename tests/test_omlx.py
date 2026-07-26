@@ -96,5 +96,7 @@ def test_check_available_true(requests_mock):
 
 def test_check_available_false_on_connection_error(requests_mock):
     adapter = OMLXAdapter(endpoint="http://test:11434")
-    requests_mock.get("http://test:11434/api/tags", exc=requests.exceptions.ConnectionError)
+    requests_mock.get(
+        "http://test:11434/api/tags", exc=requests.exceptions.ConnectionError
+    )
     assert adapter.check_available() is False

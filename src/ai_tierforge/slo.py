@@ -94,7 +94,8 @@ class EscalationTracker:
                 return 0.0
             total_count = len(total)
             escalated_ids = {
-                e.task_id for e in self._events
+                e.task_id
+                for e in self._events
                 if e.task_type == key or e.from_tier == key
             }
             return len(escalated_ids) / total_count
@@ -114,9 +115,7 @@ class EscalationTracker:
         """
         rate = self.escalation_rate(key)
         # Use per-tier override if available, else default
-        threshold = self._config.per_tier.get(
-            key, self._config.default_threshold
-        )
+        threshold = self._config.per_tier.get(key, self._config.default_threshold)
         return rate > threshold
 
     def next_tier(self, current_tier: TierName) -> TierName:
@@ -245,9 +244,7 @@ class RoutingLogger:
             return {
                 "total_routes": total_routes,
                 "total_failovers": total_failovers,
-                "failover_rate": (
-                    total_failovers / total if total > 0 else 0.0
-                ),
+                "failover_rate": (total_failovers / total if total > 0 else 0.0),
             }
 
     def _emit(self, entry: RouteLogEntry) -> None:

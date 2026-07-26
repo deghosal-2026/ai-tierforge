@@ -48,9 +48,7 @@ def build_parser() -> argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(
         prog="ai-tierforge",
-        description=(
-            "Multi-model LLM tier router with cost-per-task accounting"
-        ),
+        description=("Multi-model LLM tier router with cost-per-task accounting"),
     )
     # Global options — available to all subcommands
     parser.add_argument(
@@ -70,40 +68,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     # Subcommands
-    subparsers = parser.add_subparsers(
-        dest="command", help="Available commands"
-    )
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # ── route: route a prompt to a tier and print result + cost ────
-    route_parser = subparsers.add_parser(
-        "route", help="Route a prompt to a tier"
-    )
-    route_parser.add_argument(
-        "task_type", help="Task type label (e.g. 'code', 'spec')"
-    )
+    route_parser = subparsers.add_parser("route", help="Route a prompt to a tier")
+    route_parser.add_argument("task_type", help="Task type label (e.g. 'code', 'spec')")
     route_parser.add_argument("prompt", help="Prompt text to send")
     route_parser.add_argument(
         "--scope", help="Budget scope identifier (e.g. 'team:payments')"
     )
 
     # ── report: print cost report ───────────────────────────────────
-    report_parser = subparsers.add_parser(
-        "report", help="Print cost report"
-    )
-    report_parser.add_argument(
-        "--task", help="Show cost for a specific task ID"
-    )
-    report_parser.add_argument(
-        "--type", dest="task_type", help="Filter by task type"
-    )
+    report_parser = subparsers.add_parser("report", help="Print cost report")
+    report_parser.add_argument("--task", help="Show cost for a specific task ID")
+    report_parser.add_argument("--type", dest="task_type", help="Filter by task type")
 
     # ── validate: validate a YAML config file ───────────────────────
     validate_parser = subparsers.add_parser(
         "validate", help="Validate a YAML config file"
     )
-    validate_parser.add_argument(
-        "config_path", help="Path to tiers.yaml config file"
-    )
+    validate_parser.add_argument("config_path", help="Path to tiers.yaml config file")
 
     # ── budget: budget management subcommands ───────────────────────
     budget_parser = subparsers.add_parser("budget", help="Budget management")

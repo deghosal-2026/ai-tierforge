@@ -25,14 +25,15 @@ import time
 # Simple string aliases — kept as type aliases (not NewType) so they
 # are interchangeable with plain ``str`` in JSON / YAML contexts.
 
-TaskId = str         # uuid4 hex, e.g. "a1b2c3d4e5f6..."
-ScopeId = str        # budget scope: "project:name", "user:email", "team:payments"
-TierName = str       # any string; tier order is defined by YAML position
+TaskId = str  # uuid4 hex, e.g. "a1b2c3d4e5f6..."
+ScopeId = str  # budget scope: "project:name", "user:email", "team:payments"
+TierName = str  # any string; tier order is defined by YAML position
 
 
 # ─── Tier Configuration ────────────────────────────────────────────────
 # These dataclasses represent the *static* configuration loaded from
 # tiers.yaml.  They are created once at startup and never mutated.
+
 
 @dataclass
 class TierConfig:
@@ -64,6 +65,7 @@ class TierConfig:
                      Auto-assigned from YAML position if not explicitly
                      set; can be overridden with the ``priority:`` field.
     """
+
     model: str
     max_tokens: int
     use_for: list[str]
@@ -90,6 +92,7 @@ class EscalationConfig:
         max_retries:        Retries within a single tier before
                             escalating to the next higher tier.
     """
+
     default_threshold: float = 0.30
     per_tier: dict[str, float] = field(default_factory=dict)
     max_retries: int = 3
@@ -105,6 +108,7 @@ class RouterConfig:
                      outer loop limit; per-tier retries are governed
                      by ``EscalationConfig.max_retries``.
     """
+
     max_retries: int = 3
 
 
@@ -121,6 +125,7 @@ class OnExceedAction(Enum):
         HARD_STOP: Reject the call entirely; raises
                    ``BudgetExceededError``.
     """
+
     WARN = "warn"
     DOWNGRADE = "downgrade"
     HARD_STOP = "hard_stop"
@@ -134,6 +139,7 @@ class BudgetConfig:
         limit:      Maximum spend in USD (as Decimal for precision).
         on_exceed:  Action when the limit is breached.
     """
+
     limit: Decimal
     on_exceed: OnExceedAction
 
@@ -150,6 +156,7 @@ class BudgetsConfig:
         per_day:     Budget per day per scope (reset via CLI or scheduler).
         per_project: Budget per project (cumulative across days).
     """
+
     per_task: Optional[BudgetConfig] = None
     per_day: Optional[BudgetConfig] = None
     per_project: Optional[BudgetConfig] = None
@@ -166,6 +173,7 @@ class LoggingConfig:
                    adds prompt/response/token fields to log entries.
         output:    ``"stdout"`` (default) or a file path for log lines.
     """
+
     routing: bool = True
     failover: bool = True
     level: str = "info"
@@ -191,6 +199,7 @@ class TierForgeConfig:
                     pricing.  Merged with the adapter's default pricing
                     so users only need to specify custom models.
     """
+
     tiers: dict[str, TierConfig]
     escalation: EscalationConfig = field(default_factory=EscalationConfig)
     router: RouterConfig = field(default_factory=RouterConfig)
@@ -203,6 +212,7 @@ class TierForgeConfig:
 # These dataclasses represent *runtime* objects — created during call
 # processing, not at config-load time.  They flow through the cost
 # ledger, escalation tracker, and routing logger.
+
 
 @dataclass
 class ModelCall:
@@ -228,6 +238,7 @@ class ModelCall:
         error:        Error string if ``success`` is False, else None.
         attempt:      Which retry attempt this is (0 = first call).
     """
+
     task_id: TaskId
     task_type: str
     tier: TierName
@@ -257,6 +268,7 @@ class EscalationCause(Enum):
         BUDGET_DOWNGRADE: Budget enforcer triggered a tier downgrade.
         PROVIDER_ERROR:   5xx, rate limit, or auth failure.
     """
+
     RETRY_EXCEEDED = auto()
     CONTENT_TOO_LONG = auto()
     TIMEOUT = auto()
@@ -284,6 +296,7 @@ class EscalationEvent:
                                  reporting/debugging only — not added
                                  separately to total cost.
     """
+
     task_id: TaskId
     task_type: str
     from_tier: TierName
@@ -305,6 +318,7 @@ class RouteDecisionType(Enum):
         ROUTE:     Intentional choice based on task_type matching.
         FAILOVER:  Forced by error, escalation, or budget enforcement.
     """
+
     ROUTE = "route"
     FAILOVER = "failover"
 
@@ -348,14 +362,18 @@ class CostReport:
         per_type:  Dict of task_type → total cost across all tasks
                    of that type.
     """
+
     per_task: dict[TaskId, TaskCost] = field(default_factory=dict)
     per_tier: dict[TierName, Decimal] = field(default_factory=dict)
     per_type: dict[str, Decimal] = field(default_factory=dict)
 
     def cost_per_type(self, task_type: str) -> Decimal:
         return sum(
-            (tc.total_cost for tc in self.per_task.values()
-             if tc.task_type == task_type),
+            (
+                tc.total_cost
+                for tc in self.per_task.values()
+                if tc.task_type == task_type
+            ),
             Decimal("0"),
         )
 
@@ -378,6 +396,7 @@ class CostReport:
 
 # ─── Budget Check Result ───────────────────────────────────────────────
 
+
 @dataclass
 class BudgetCheck:
     """Result of a budget enforcement check.
@@ -392,6 +411,7 @@ class BudgetCheck:
         new_tier:  Populated only when ``action == DOWNGRADE``;
                    the tier the router should switch to.
     """
+
     allowed: bool
     action: OnExceedAction
     reason: str

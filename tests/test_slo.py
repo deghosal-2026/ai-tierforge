@@ -17,17 +17,23 @@ from ai_tierforge.types import (
 
 def _event(task_id="t1", task_type="code", from_tier="w", to_tier="a"):
     return EscalationEvent(
-        task_id=task_id, task_type=task_type,
-        from_tier=from_tier, to_tier=to_tier,
+        task_id=task_id,
+        task_type=task_type,
+        from_tier=from_tier,
+        to_tier=to_tier,
         cause=EscalationCause.RETRY_EXCEEDED,
     )
 
 
-def _entry(task_id="t1", tier="w", model="m", decision=RouteDecisionType.ROUTE,
-           reason="test"):
+def _entry(
+    task_id="t1", tier="w", model="m", decision=RouteDecisionType.ROUTE, reason="test"
+):
     return RouteLogEntry(
-        task_id=task_id, tier=tier, model=model,
-        decision=decision, reason=reason,
+        task_id=task_id,
+        tier=tier,
+        model=model,
+        decision=decision,
+        reason=reason,
     )
 
 

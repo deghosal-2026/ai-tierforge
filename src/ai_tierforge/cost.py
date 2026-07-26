@@ -103,9 +103,7 @@ class CostLedger:
             task = self._tasks[task_id]
             task.calls.append(call)
 
-    def record_escalation(
-        self, task_id: TaskId, event: EscalationEvent
-    ) -> None:
+    def record_escalation(self, task_id: TaskId, event: EscalationEvent) -> None:
         """Append an escalation event to the task's record.
 
         Creates a new ``TaskCost`` if the task doesn't exist yet (edge
@@ -175,13 +173,11 @@ class CostLedger:
             report.per_task[task_id] = task_cost
             tier = task_cost.tier
             report.per_tier[tier] = (
-                report.per_tier.get(tier, Decimal("0"))
-                + task_cost.total_cost
+                report.per_tier.get(tier, Decimal("0")) + task_cost.total_cost
             )
             tt = task_cost.task_type
             report.per_type[tt] = (
-                report.per_type.get(tt, Decimal("0"))
-                + task_cost.total_cost
+                report.per_type.get(tt, Decimal("0")) + task_cost.total_cost
             )
         return report
 

@@ -57,10 +57,10 @@ ZEN_ENDPOINT = "https://opencode.ai/zen/v1"
 OMLX_ENDPOINT = "http://localhost:11434"
 
 ZEN_PRICING = {
-    "deepseek-v4-flash":      (Decimal("0.00000014"), Decimal("0.00000028")),
+    "deepseek-v4-flash": (Decimal("0.00000014"), Decimal("0.00000028")),
     "deepseek-v4-flash-free": (Decimal("0"), Decimal("0")),
-    "gpt-5-nano":             (Decimal("0.00000005"), Decimal("0.0000004")),
-    "gpt-5-nano-codex":       (Decimal("0.00000005"), Decimal("0.0000004")),
+    "gpt-5-nano": (Decimal("0.00000005"), Decimal("0.0000004")),
+    "gpt-5-nano-codex": (Decimal("0.00000005"), Decimal("0.0000004")),
 }
 
 WORKHORSE = TierConfig(
@@ -110,7 +110,11 @@ def load_real_data(data_dir: Path | None = None) -> dict:
     """
     d = data_dir or REAL_DATA_DIR
     prompts: dict[str, list[dict]] = {
-        "code": [], "spec": [], "tickets": [], "summaries": [], "chat": [],
+        "code": [],
+        "spec": [],
+        "tickets": [],
+        "summaries": [],
+        "chat": [],
     }
 
     issues_path = d / "issues.json"
@@ -122,16 +126,20 @@ def load_real_data(data_dir: Path | None = None) -> dict:
             title = i["title"]
             labels = ", ".join(i.get("labels", [])[:3]) or "none"
             body = (i.get("body") or "")[:500]
-            prompts["tickets"].append({
-                "prompt": f"Categorize this GitHub issue from {repo}:\n"
-                          f"Title: {title}\nLabels: {labels}\nBody: {body}",
-                "source": f"{i['repo']}#{i['number']}",
-            })
-            prompts["summaries"].append({
-                "prompt": f"Summarize this GitHub issue in 2 sentences:\n"
-                          f"Title: {title}\nBody: {body}",
-                "source": f"{i['repo']}#{i['number']}",
-            })
+            prompts["tickets"].append(
+                {
+                    "prompt": f"Categorize this GitHub issue from {repo}:\n"
+                    f"Title: {title}\nLabels: {labels}\nBody: {body}",
+                    "source": f"{i['repo']}#{i['number']}",
+                }
+            )
+            prompts["summaries"].append(
+                {
+                    "prompt": f"Summarize this GitHub issue in 2 sentences:\n"
+                    f"Title: {title}\nBody: {body}",
+                    "source": f"{i['repo']}#{i['number']}",
+                }
+            )
 
     prs_path = d / "prs.json"
     if prs_path.exists():
@@ -141,16 +149,20 @@ def load_real_data(data_dir: Path | None = None) -> dict:
             repo = p["repo"].split("/")[-1]
             title = p["title"]
             body = (p.get("body") or "")[:500]
-            prompts["spec"].append({
-                "prompt": f"Review this PR and suggest improvements:\n"
-                          f"Repo: {repo}\nTitle: {title}\nBody: {body}",
-                "source": f"{p['repo']}#{p['number']}",
-            })
-            prompts["chat"].append({
-                "prompt": f"Explain what this PR does in simple terms:\n"
-                          f"Repo: {repo}\nTitle: {title}\nBody: {body}",
-                "source": f"{p['repo']}#{p['number']}",
-            })
+            prompts["spec"].append(
+                {
+                    "prompt": f"Review this PR and suggest improvements:\n"
+                    f"Repo: {repo}\nTitle: {title}\nBody: {body}",
+                    "source": f"{p['repo']}#{p['number']}",
+                }
+            )
+            prompts["chat"].append(
+                {
+                    "prompt": f"Explain what this PR does in simple terms:\n"
+                    f"Repo: {repo}\nTitle: {title}\nBody: {body}",
+                    "source": f"{p['repo']}#{p['number']}",
+                }
+            )
 
     code_path = d / "code_snippets.json"
     if code_path.exists():
@@ -160,11 +172,13 @@ def load_real_data(data_dir: Path | None = None) -> dict:
             repo = s["repo"].split("/")[-1]
             path = s["path"]
             content = s["content"][:2000]
-            prompts["code"].append({
-                "prompt": f"Review this code from {repo}/{path} and suggest improvements:\n"
-                          f"```python\n{content}\n```",
-                "source": f"{s['repo']}/{s['path']}",
-            })
+            prompts["code"].append(
+                {
+                    "prompt": f"Review this code from {repo}/{path} and suggest improvements:\n"
+                    f"```python\n{content}\n```",
+                    "source": f"{s['repo']}/{s['path']}",
+                }
+            )
 
     return prompts
 
@@ -180,21 +194,26 @@ def get_tasks(task_type: str, count: int = 0) -> list[dict]:
     """
     n = count or TASK_COUNT
     if REAL_DATA and REAL_DATA.get(task_type):
-        items = REAL_DATA[task_type][TASK_OFFSET:TASK_OFFSET + n]
+        items = REAL_DATA[task_type][TASK_OFFSET : TASK_OFFSET + n]
         if not items:
             raise ValueError(
                 f"No real {task_type} prompts at offset {TASK_OFFSET} "
                 f"(only {len(REAL_DATA[task_type])} available). "
                 f"Use a lower --offset or fetch more data."
             )
-        return [{"type": task_type, "prompt": item["prompt"],
-                 "source": item.get("source", "")} for item in items]
-    raise ValueError(
-        "No real data loaded. Use --data-dir tests/field/realdata"
-    )
+        return [
+            {
+                "type": task_type,
+                "prompt": item["prompt"],
+                "source": item.get("source", ""),
+            }
+            for item in items
+        ]
+    raise ValueError("No real data loaded. Use --data-dir tests/field/realdata")
 
 
 # ── Helpers ────────────────────────────────────────────────────────
+
 
 def check_env():
     if not os.environ.get("OPENCODE_API_KEY"):
@@ -224,22 +243,25 @@ def make_router(tiers, budgets=None, log_path: str | None = None, timeout: int =
         tiers=tiers,
         budgets=budgets
         or BudgetsConfig(
-            per_task=BudgetConfig(
-                limit=Decimal("10"), on_exceed=OnExceedAction.WARN
-            )
+            per_task=BudgetConfig(limit=Decimal("10"), on_exceed=OnExceedAction.WARN)
         ),
         logging=logging,
     )
     return TierRouter(config, make_adapters(timeout=timeout))
 
 
-def run_tasks(router, tasks, log_path: str | None = None,
-              scenario_name: str = "", progress_file: Path | None = None,
-              expect_budget_block: bool = False):
+def run_tasks(
+    router,
+    tasks,
+    log_path: str | None = None,
+    scenario_name: str = "",
+    progress_file: Path | None = None,
+    expect_budget_block: bool = False,
+):
     calls = []
     failures = []
     for i, t in enumerate(tasks):
-        label = f"  [{i+1}/{len(tasks)}] {t['type']}: {t['prompt'][:60]}..."
+        label = f"  [{i + 1}/{len(tasks)}] {t['type']}: {t['prompt'][:60]}..."
         print(label, end=" ", flush=True)
         try:
             r = router.route(
@@ -266,8 +288,10 @@ def run_tasks(router, tasks, log_path: str | None = None,
                 }
             )
             if r.success:
-                print(f"OK  {r.model}  {r.tokens_in}+{r.tokens_out} tok  "
-                      f"${r.cost_in + r.cost_out:.6f}  {r.duration_ms}ms")
+                print(
+                    f"OK  {r.model}  {r.tokens_in}+{r.tokens_out} tok  "
+                    f"${r.cost_in + r.cost_out:.6f}  {r.duration_ms}ms"
+                )
             else:
                 failures.append(f"{t['type']}: {r.error}")
                 print(f"FAIL  {r.error}")
@@ -280,9 +304,12 @@ def run_tasks(router, tasks, log_path: str | None = None,
                     "model": "",
                     "success": False,
                     "error": f"BudgetExceededError: {e}",
-                    "tokens_in": 0, "tokens_out": 0,
-                    "cost_in": "0", "cost_out": "0",
-                    "duration_ms": 0, "attempt": 0,
+                    "tokens_in": 0,
+                    "tokens_out": 0,
+                    "cost_in": "0",
+                    "cost_out": "0",
+                    "duration_ms": 0,
+                    "attempt": 0,
                     "response": None,
                     "source": t.get("source", ""),
                 }
@@ -302,9 +329,12 @@ def run_tasks(router, tasks, log_path: str | None = None,
                     "model": "",
                     "success": False,
                     "error": str(e),
-                    "tokens_in": 0, "tokens_out": 0,
-                    "cost_in": "0", "cost_out": "0",
-                    "duration_ms": 0, "attempt": 0,
+                    "tokens_in": 0,
+                    "tokens_out": 0,
+                    "cost_in": "0",
+                    "cost_out": "0",
+                    "duration_ms": 0,
+                    "attempt": 0,
                     "response": None,
                     "source": t.get("source", ""),
                 }
@@ -312,13 +342,19 @@ def run_tasks(router, tasks, log_path: str | None = None,
             print(f"ERROR  {e}")
 
         if progress_file:
-            progress_file.write_text(json.dumps({
-                "scenario": scenario_name,
-                "task_index": i + 1,
-                "total_tasks": len(tasks),
-                "calls_so_far": calls,
-                "failures_so_far": failures,
-            }, indent=2, default=str))
+            progress_file.write_text(
+                json.dumps(
+                    {
+                        "scenario": scenario_name,
+                        "task_index": i + 1,
+                        "total_tasks": len(tasks),
+                        "calls_so_far": calls,
+                        "failures_so_far": failures,
+                    },
+                    indent=2,
+                    default=str,
+                )
+            )
     report = router.cost_report()
     return {
         "calls": calls,
@@ -346,20 +382,36 @@ def run_tasks(router, tasks, log_path: str | None = None,
 
 # ── Scenarios ──────────────────────────────────────────────────────
 
+
 def scenario_single(log_path, scenario_name="", progress_file=None):
     """DeepSeek Free handles code + chat. Proves free tier works ($0)."""
     r = make_router(WORKHORSE_ONLY, log_path=log_path)
     tasks = get_tasks("code") + get_tasks("chat")
-    return run_tasks(r, tasks, log_path=log_path,
-                     scenario_name=scenario_name, progress_file=progress_file)
+    return run_tasks(
+        r,
+        tasks,
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
+    )
 
 
 def scenario_multi(log_path, scenario_name="", progress_file=None):
     """Tier routing: code→workhorse, spec→architect, tickets→utility. Proves routing."""
     r = make_router(ALL_TIERS, log_path=log_path)
-    tasks = get_tasks("code") + get_tasks("spec") + get_tasks("tickets") + get_tasks("summaries")
-    return run_tasks(r, tasks, log_path=log_path,
-                     scenario_name=scenario_name, progress_file=progress_file)
+    tasks = (
+        get_tasks("code")
+        + get_tasks("spec")
+        + get_tasks("tickets")
+        + get_tasks("summaries")
+    )
+    return run_tasks(
+        r,
+        tasks,
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
+    )
 
 
 def scenario_comparison(log_path, scenario_name="", progress_file=None):
@@ -369,25 +421,41 @@ def scenario_comparison(log_path, scenario_name="", progress_file=None):
     prompt = code_tasks[0]["prompt"]
     spec_tasks = get_tasks("spec", 1)
     spec_prompt = spec_tasks[0]["prompt"]
-    return run_tasks(r, [
-        {"type": "code", "prompt": prompt},
-        {"type": "spec", "prompt": spec_prompt},
-    ], log_path=log_path, scenario_name=scenario_name, progress_file=progress_file)
+    return run_tasks(
+        r,
+        [
+            {"type": "code", "prompt": prompt},
+            {"type": "spec", "prompt": spec_prompt},
+        ],
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
+    )
 
 
 def scenario_savings(log_path, scenario_name="", progress_file=None):
     """Baseline (all gpt-5-nano) vs tiered (mixed). Proves cost savings."""
     tasks = get_tasks("code") + get_tasks("spec") + get_tasks("tickets")
     baseline = run_tasks(
-        make_router(BASELINE_ONLY, log_path=log_path), tasks, log_path=log_path,
-        scenario_name=scenario_name, progress_file=progress_file,
+        make_router(BASELINE_ONLY, log_path=log_path),
+        tasks,
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
     )
     tiered = run_tasks(
-        make_router(ALL_TIERS, log_path=log_path), tasks, log_path=log_path,
-        scenario_name=scenario_name, progress_file=progress_file,
+        make_router(ALL_TIERS, log_path=log_path),
+        tasks,
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
     )
-    bl_total = sum(Decimal(c["cost_in"]) + Decimal(c["cost_out"]) for c in baseline["calls"])
-    ti_total = sum(Decimal(c["cost_in"]) + Decimal(c["cost_out"]) for c in tiered["calls"])
+    bl_total = sum(
+        Decimal(c["cost_in"]) + Decimal(c["cost_out"]) for c in baseline["calls"]
+    )
+    ti_total = sum(
+        Decimal(c["cost_in"]) + Decimal(c["cost_out"]) for c in tiered["calls"]
+    )
     savings = ((bl_total - ti_total) / bl_total * 100) if bl_total > 0 else Decimal("0")
     return {
         "baseline": baseline,
@@ -396,8 +464,10 @@ def scenario_savings(log_path, scenario_name="", progress_file=None):
         "tiered_cost": str(ti_total),
         "savings_percent": str(savings),
         "summary": {
-            "total_calls": baseline["summary"]["total_calls"] + tiered["summary"]["total_calls"],
-            "total_failures": baseline["summary"]["total_failures"] + tiered["summary"]["total_failures"],
+            "total_calls": baseline["summary"]["total_calls"]
+            + tiered["summary"]["total_calls"],
+            "total_failures": baseline["summary"]["total_failures"]
+            + tiered["summary"]["total_failures"],
             "pass": baseline["summary"]["pass"] and tiered["summary"]["pass"],
         },
     }
@@ -415,7 +485,11 @@ def scenario_escalation(log_path, scenario_name="", progress_file=None):
         use_for=["code", "chat"],
         provider="zen-slow",
     )
-    esc_tiers = {"architect": ARCHITECT, "workhorse": slow_workhorse, "utility": UTILITY}
+    esc_tiers = {
+        "architect": ARCHITECT,
+        "workhorse": slow_workhorse,
+        "utility": UTILITY,
+    }
     adapters = {
         "zen-slow": OpenAICompatAdapter(
             endpoint=ZEN_ENDPOINT,
@@ -432,23 +506,30 @@ def scenario_escalation(log_path, scenario_name="", progress_file=None):
         "omlx": OMLXAdapter(endpoint=OMLX_ENDPOINT),
     }
     logging = LoggingConfig(
-        routing=True, failover=True, level="debug", output=log_path or "stdout",
+        routing=True,
+        failover=True,
+        level="debug",
+        output=log_path or "stdout",
     )
     config = TierForgeConfig(
         tiers=esc_tiers,
         budgets=BudgetsConfig(
-            per_task=BudgetConfig(
-                limit=Decimal("10"), on_exceed=OnExceedAction.WARN
-            )
+            per_task=BudgetConfig(limit=Decimal("10"), on_exceed=OnExceedAction.WARN)
         ),
         logging=logging,
     )
     r = TierRouter(config, adapters)
     code_tasks = get_tasks("code", 1)
     esc_prompt = code_tasks[0]["prompt"]
-    return run_tasks(r, [
-        {"type": "code", "prompt": esc_prompt},
-    ], log_path=log_path, scenario_name=scenario_name, progress_file=progress_file)
+    return run_tasks(
+        r,
+        [
+            {"type": "code", "prompt": esc_prompt},
+        ],
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
+    )
 
 
 def scenario_budget_stop(log_path, scenario_name="", progress_file=None):
@@ -464,13 +545,27 @@ def scenario_budget_stop(log_path, scenario_name="", progress_file=None):
     )
     r = make_router(ARCHITECT_ONLY, budgets=budgets, log_path=log_path)
     spec_tasks = get_tasks("spec", 2)
-    return run_tasks(r, [
-        {"type": "spec", "prompt": spec_tasks[0]["prompt"],
-         "scope": "budget-stop-test", "source": spec_tasks[0].get("source", "")},
-        {"type": "spec", "prompt": spec_tasks[1]["prompt"],
-         "scope": "budget-stop-test", "source": spec_tasks[1].get("source", "")},
-    ], log_path=log_path, scenario_name=scenario_name, progress_file=progress_file,
-       expect_budget_block=True)
+    return run_tasks(
+        r,
+        [
+            {
+                "type": "spec",
+                "prompt": spec_tasks[0]["prompt"],
+                "scope": "budget-stop-test",
+                "source": spec_tasks[0].get("source", ""),
+            },
+            {
+                "type": "spec",
+                "prompt": spec_tasks[1]["prompt"],
+                "scope": "budget-stop-test",
+                "source": spec_tasks[1].get("source", ""),
+            },
+        ],
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
+        expect_budget_block=True,
+    )
 
 
 def scenario_budget_downgrade(log_path, scenario_name="", progress_file=None):
@@ -486,12 +581,26 @@ def scenario_budget_downgrade(log_path, scenario_name="", progress_file=None):
     )
     r = make_router(ALL_TIERS, budgets=budgets, log_path=log_path)
     spec_tasks = get_tasks("spec", 2)
-    return run_tasks(r, [
-        {"type": "spec", "prompt": spec_tasks[0]["prompt"],
-         "scope": "budget-downgrade-test", "source": spec_tasks[0].get("source", "")},
-        {"type": "spec", "prompt": spec_tasks[1]["prompt"],
-         "scope": "budget-downgrade-test", "source": spec_tasks[1].get("source", "")},
-    ], log_path=log_path, scenario_name=scenario_name, progress_file=progress_file)
+    return run_tasks(
+        r,
+        [
+            {
+                "type": "spec",
+                "prompt": spec_tasks[0]["prompt"],
+                "scope": "budget-downgrade-test",
+                "source": spec_tasks[0].get("source", ""),
+            },
+            {
+                "type": "spec",
+                "prompt": spec_tasks[1]["prompt"],
+                "scope": "budget-downgrade-test",
+                "source": spec_tasks[1].get("source", ""),
+            },
+        ],
+        log_path=log_path,
+        scenario_name=scenario_name,
+        progress_file=progress_file,
+    )
 
 
 def scenario_cli(log_path, scenario_name="", progress_file=None):
@@ -549,18 +658,22 @@ pricing:
 
 
 SCENARIOS = {
-    "single":           ("DeepSeek: code+chat (workhorse tier)",        scenario_single),
-    "multi":            ("3-tier routing: code→workhorse, spec→architect, tickets→utility", scenario_multi),
-    "comparison":       ("Same prompt, 2 models — cost diff",          scenario_comparison),
-    "savings":          ("Baseline (all nano) vs tiered — savings %",  scenario_savings),
-    "escalation":       ("Timeout → workhorse→architect failover",     scenario_escalation),
-    "budget-stop":      ("Budget + HARD_STOP blocks 2nd call",         scenario_budget_stop),
-    "budget-downgrade": ("Budget + DOWNGRADE switches tier",           scenario_budget_downgrade),
-    "cli":              ("CLI round-trip via temp YAML",               scenario_cli),
+    "single": ("DeepSeek: code+chat (workhorse tier)", scenario_single),
+    "multi": (
+        "3-tier routing: code→workhorse, spec→architect, tickets→utility",
+        scenario_multi,
+    ),
+    "comparison": ("Same prompt, 2 models — cost diff", scenario_comparison),
+    "savings": ("Baseline (all nano) vs tiered — savings %", scenario_savings),
+    "escalation": ("Timeout → workhorse→architect failover", scenario_escalation),
+    "budget-stop": ("Budget + HARD_STOP blocks 2nd call", scenario_budget_stop),
+    "budget-downgrade": ("Budget + DOWNGRADE switches tier", scenario_budget_downgrade),
+    "cli": ("CLI round-trip via temp YAML", scenario_cli),
 }
 
 
 # ── Resume / state management ──────────────────────────────────────
+
 
 def load_state() -> dict:
     if STATE_FILE.exists():
@@ -580,7 +693,9 @@ def save_report(name, data):
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     path = REPORTS_DIR / f"{ts}_{name}.json"
     with open(path, "w") as f:
-        json.dump({"timestamp": ts, "scenario": name, "data": data}, f, indent=2, default=str)
+        json.dump(
+            {"timestamp": ts, "scenario": name, "data": data}, f, indent=2, default=str
+        )
     return path
 
 
@@ -605,9 +720,13 @@ def save_responses(name, desc, data):
         ]
     for i, c in enumerate(data.get("calls", [])):
         lines.append("---\n")
-        lines.append(f"## Call {i+1}: {c.get('task_type', '?')} → {c.get('tier', '?')}/{c.get('model', '?')}")
+        lines.append(
+            f"## Call {i + 1}: {c.get('task_type', '?')} → {c.get('tier', '?')}/{c.get('model', '?')}"
+        )
         lines.append(f"- **Success:** {c.get('success')}")
-        lines.append(f"- **Tokens:** {c.get('tokens_in', 0)} in / {c.get('tokens_out', 0)} out")
+        lines.append(
+            f"- **Tokens:** {c.get('tokens_in', 0)} in / {c.get('tokens_out', 0)} out"
+        )
         cost = Decimal(c.get("cost_in", "0")) + Decimal(c.get("cost_out", "0"))
         lines.append(f"- **Cost:** ${cost:.6f}")
         lines.append(f"- **Duration:** {c.get('duration_ms', 0)}ms")
@@ -624,6 +743,7 @@ def save_responses(name, desc, data):
 
 
 # ── Output ─────────────────────────────────────────────────────────
+
 
 def print_report(name, desc, data, report_path):
     sep = "=" * 60
@@ -657,6 +777,7 @@ def print_report(name, desc, data, report_path):
 
 # ── Main ───────────────────────────────────────────────────────────
 
+
 def main():
     global REAL_DATA, REPORTS_DIR, LOGS_DIR, STATE_FILE, TASK_COUNT, TASK_OFFSET
 
@@ -669,22 +790,40 @@ def main():
         default="all",
         help="Scenario to run (default: all)",
     )
-    parser.add_argument("--no-save", action="store_true", help="Skip saving JSON reports")
-    parser.add_argument("--resume", action="store_true",
-                        help="Skip already-completed scenarios (reads state.json)")
-    parser.add_argument("--fresh", action="store_true",
-                        help="Delete state.json and start fresh")
-    parser.add_argument("--data-dir", type=str, default=None,
-                        help="Path to real data directory. "
-                             "When set, scenarios use real prompts from GitHub issues/PRs/code. "
-                             "Output goes to tests/field/realdata_run/")
-    parser.add_argument("--count", type=int, default=2,
-                        help="Number of real prompts per task type per scenario (default 2). "
-                             "E.g. --count 10 runs 10 tickets, 10 summaries, 10 code reviews, etc.")
-    parser.add_argument("--offset", type=int, default=0,
-                        help="Start offset into the real data (default 0). "
-                             "Use with --count to process in batches: "
-                             "--count 10 --offset 0, then --count 10 --offset 10, etc.")
+    parser.add_argument(
+        "--no-save", action="store_true", help="Skip saving JSON reports"
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip already-completed scenarios (reads state.json)",
+    )
+    parser.add_argument(
+        "--fresh", action="store_true", help="Delete state.json and start fresh"
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        default=None,
+        help="Path to real data directory. "
+        "When set, scenarios use real prompts from GitHub issues/PRs/code. "
+        "Output goes to tests/field/realdata_run/",
+    )
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=2,
+        help="Number of real prompts per task type per scenario (default 2). "
+        "E.g. --count 10 runs 10 tickets, 10 summaries, 10 code reviews, etc.",
+    )
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Start offset into the real data (default 0). "
+        "Use with --count to process in batches: "
+        "--count 10 --offset 0, then --count 10 --offset 10, etc.",
+    )
     args = parser.parse_args()
 
     check_env()
@@ -715,8 +854,10 @@ def main():
 
     state = load_state() if args.resume else {}
     if state:
-        print(f"Resuming — {len(state)} scenario(s) already completed: "
-              f"{', '.join(state.keys())}\n")
+        print(
+            f"Resuming — {len(state)} scenario(s) already completed: "
+            f"{', '.join(state.keys())}\n"
+        )
 
     names = list(SCENARIOS) if args.scenario == "all" else [args.scenario]
     results = []

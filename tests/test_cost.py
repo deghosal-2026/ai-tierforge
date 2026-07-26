@@ -10,18 +10,26 @@ from ai_tierforge.types import (
 
 def _make_call(task_id="t1", tier="w", cost_in=0, cost_out=0, success=True):
     return ModelCall(
-        task_id=task_id, task_type="code", tier=tier,
-        model="m", prompt="hello", response="ok" if success else None,
-        tokens_in=100, tokens_out=50,
-        cost_in=Decimal(str(cost_in)), cost_out=Decimal(str(cost_out)),
+        task_id=task_id,
+        task_type="code",
+        tier=tier,
+        model="m",
+        prompt="hello",
+        response="ok" if success else None,
+        tokens_in=100,
+        tokens_out=50,
+        cost_in=Decimal(str(cost_in)),
+        cost_out=Decimal(str(cost_out)),
         success=success,
     )
 
 
 def _make_escalation(task_id="t1", task_type="code", from_tier="w", to_tier="a"):
     return EscalationEvent(
-        task_id=task_id, task_type=task_type,
-        from_tier=from_tier, to_tier=to_tier,
+        task_id=task_id,
+        task_type=task_type,
+        from_tier=from_tier,
+        to_tier=to_tier,
         cause=EscalationCause.RETRY_EXCEEDED,
     )
 

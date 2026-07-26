@@ -97,14 +97,18 @@ def test_route_escalation_on_failure(router, failing_adapters):
     from ai_tierforge.config import TierForgeConfigLoader
 
     # Single-tier config — no escalation possible, just exhaustion
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "architect": {
-                "model": "glm-5.2", "max_tokens": 16000,
-                "use_for": ["code"], "provider": "openai-compatible",
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "architect": {
+                    "model": "glm-5.2",
+                    "max_tokens": 16000,
+                    "use_for": ["code"],
+                    "provider": "openai-compatible",
+                },
             },
-        },
-    })
+        }
+    )
     r = TierRouter(config, failing_adapters)
     with pytest.raises(RouterExhaustedError):
         r.route("code", "hello")
@@ -120,18 +124,24 @@ def test_route_escalates_to_next_tier(router, failing_adapters, mock_adapters):
     from ai_tierforge.router import TierRouter
     from ai_tierforge.config import TierForgeConfigLoader
 
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "architect": {
-                "model": "glm-5.2", "max_tokens": 16000,
-                "use_for": ["spec"], "provider": "openai-compatible",
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "architect": {
+                    "model": "glm-5.2",
+                    "max_tokens": 16000,
+                    "use_for": ["spec"],
+                    "provider": "openai-compatible",
+                },
+                "workhorse": {
+                    "model": "deepseek-v4-flash",
+                    "max_tokens": 8000,
+                    "use_for": ["spec"],
+                    "provider": "openai-compatible",
+                },
             },
-            "workhorse": {
-                "model": "deepseek-v4-flash", "max_tokens": 8000,
-                "use_for": ["spec"], "provider": "openai-compatible",
-            },
-        },
-    })
+        }
+    )
     r = TierRouter(config, failing_adapters)
     with pytest.raises(RouterExhaustedError):
         r.route("spec", "hello")
@@ -156,8 +166,10 @@ def test_route_budget_hard_stop(router, mock_adapters):
     config = TierForgeConfig(
         tiers={
             "workhorse": TierConfig(
-                model="test", max_tokens=1000,
-                use_for=["code"], provider="openai-compatible",
+                model="test",
+                max_tokens=1000,
+                use_for=["code"],
+                provider="openai-compatible",
             ),
         },
         budgets=BudgetsConfig(
@@ -217,6 +229,7 @@ def test_should_escalate_immediate():
     - rate_limit_exceeded: won't resolve on retry anytime soon
     """
     from ai_tierforge.router import TierRouter
+
     assert TierRouter.should_escalate("content_too_long") is True
     assert TierRouter.should_escalate("context_length_exceeded") is True
     assert TierRouter.should_escalate("rate_limit_exceeded") is True
@@ -231,6 +244,7 @@ def test_should_escalate_retryable():
     - 5xx: server error, might be temporary
     """
     from ai_tierforge.router import TierRouter
+
     assert TierRouter.should_escalate("timeout") is False
     assert TierRouter.should_escalate("connection_error") is False
     assert TierRouter.should_escalate("5xx") is False
@@ -243,4 +257,5 @@ def test_should_escalate_none():
     return False — no escalation needed.
     """
     from ai_tierforge.router import TierRouter
+
     assert TierRouter.should_escalate(None) is False

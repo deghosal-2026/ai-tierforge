@@ -106,9 +106,7 @@ class OMLXAdapter:
 
         start = time.time()
         try:
-            resp = requests.post(
-                url, json=body, timeout=self._timeout
-            )
+            resp = requests.post(url, json=body, timeout=self._timeout)
             duration_ms = int((time.time() - start) * 1000)
 
             if resp.status_code == 200:
@@ -206,10 +204,7 @@ class OMLXAdapter:
             True if OMLX is reachable, False otherwise.
         """
         try:
-            resp = requests.get(
-                f"{self._endpoint}/api/tags", timeout=5
-            )
+            resp = requests.get(f"{self._endpoint}/api/tags", timeout=5)
             return resp.status_code == 200
-        except (requests.exceptions.ConnectionError,
-                requests.exceptions.Timeout):
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return False

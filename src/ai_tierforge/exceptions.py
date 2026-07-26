@@ -93,12 +93,11 @@ class RouterExhaustedError(TierForgeError):
         self.escalation_trace = escalation_trace
         # Format the trace as "workhorse→architect → architect→premium"
         # or "no escalations" if the trace is empty
-        trace_summary = " → ".join(
-            f"{e.from_tier}→{e.to_tier}" for e in escalation_trace
-        ) or "no escalations"
-        super().__init__(
-            f"router exhausted for task '{task_id}': {trace_summary}"
+        trace_summary = (
+            " → ".join(f"{e.from_tier}→{e.to_tier}" for e in escalation_trace)
+            or "no escalations"
         )
+        super().__init__(f"router exhausted for task '{task_id}': {trace_summary}")
 
 
 class BudgetExceededError(TierForgeError):

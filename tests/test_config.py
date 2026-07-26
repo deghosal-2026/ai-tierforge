@@ -32,9 +32,7 @@ def test_from_yaml_valid():
     The fixture tiers.yaml defines architect, workhorse, and utility
     tiers matching the SPEC §13.1 example.
     """
-    config = TierForgeConfigLoader.from_yaml(
-        FIXTURES / "tiers.yaml"
-    )
+    config = TierForgeConfigLoader.from_yaml(FIXTURES / "tiers.yaml")
     assert isinstance(config, TierForgeConfig)
     assert len(config.tiers) == 3
     assert "architect" in config.tiers
@@ -54,9 +52,7 @@ def test_from_yaml_invalid_yaml():
     We write a temp file with broken YAML syntax and verify that
     the loader raises (YAMLError or similar).
     """
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".yaml", delete=False
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write(": invalid yaml [")
         path = f.name
     with pytest.raises(Exception):
@@ -65,9 +61,7 @@ def test_from_yaml_invalid_yaml():
 
 def test_validate_valid_config():
     """A valid config should produce no validation errors."""
-    config = TierForgeConfigLoader.from_yaml(
-        FIXTURES / "tiers.yaml"
-    )
+    config = TierForgeConfigLoader.from_yaml(FIXTURES / "tiers.yaml")
     errors = TierForgeConfigLoader.validate(config)
     assert errors == []
 
@@ -88,14 +82,18 @@ def test_validate_single_tier():
     This is a warning (not an error) — the config is technically valid
     but escalation won't work with a single tier.
     """
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "only": {
-                "model": "test", "max_tokens": 1000,
-                "use_for": ["code"], "provider": "test",
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "only": {
+                    "model": "test",
+                    "max_tokens": 1000,
+                    "use_for": ["code"],
+                    "provider": "test",
+                }
             }
         }
-    })
+    )
     errors = TierForgeConfigLoader.validate(config)
     assert any("at least 2 tiers" in e for e in errors)
 
@@ -106,18 +104,24 @@ def test_validate_empty_use_for():
     A tier with no task types is useless — the router can never
     route anything to it.
     """
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "a": {
-                "model": "test", "max_tokens": 1000,
-                "use_for": [], "provider": "test",
-            },
-            "b": {
-                "model": "test2", "max_tokens": 1000,
-                "use_for": ["code"], "provider": "test",
-            },
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "a": {
+                    "model": "test",
+                    "max_tokens": 1000,
+                    "use_for": [],
+                    "provider": "test",
+                },
+                "b": {
+                    "model": "test2",
+                    "max_tokens": 1000,
+                    "use_for": ["code"],
+                    "provider": "test",
+                },
+            }
         }
-    })
+    )
     errors = TierForgeConfigLoader.validate(config)
     assert any("use_for must not be empty" in e for e in errors)
 
@@ -128,18 +132,24 @@ def test_validate_max_tokens_positive():
     Zero or negative max_tokens makes no sense — the model can't
     produce any output.
     """
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "a": {
-                "model": "test", "max_tokens": 0,
-                "use_for": ["code"], "provider": "test",
-            },
-            "b": {
-                "model": "test2", "max_tokens": 1000,
-                "use_for": ["code"], "provider": "test",
-            },
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "a": {
+                    "model": "test",
+                    "max_tokens": 0,
+                    "use_for": ["code"],
+                    "provider": "test",
+                },
+                "b": {
+                    "model": "test2",
+                    "max_tokens": 1000,
+                    "use_for": ["code"],
+                    "provider": "test",
+                },
+            }
         }
-    })
+    )
     errors = TierForgeConfigLoader.validate(config)
     assert any("max_tokens must be positive" in e for e in errors)
 
@@ -150,18 +160,24 @@ def test_validate_duplicate_task_type():
     If two tiers claim the same task_type, the first one in YAML order
     wins.  The warning informs the user about the conflict.
     """
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "a": {
-                "model": "test", "max_tokens": 1000,
-                "use_for": ["code", "spec"], "provider": "test",
-            },
-            "b": {
-                "model": "test2", "max_tokens": 1000,
-                "use_for": ["code"], "provider": "test",
-            },
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "a": {
+                    "model": "test",
+                    "max_tokens": 1000,
+                    "use_for": ["code", "spec"],
+                    "provider": "test",
+                },
+                "b": {
+                    "model": "test2",
+                    "max_tokens": 1000,
+                    "use_for": ["code"],
+                    "provider": "test",
+                },
+            }
         }
-    })
+    )
     errors = TierForgeConfigLoader.validate(config)
     assert any("claimed by tiers" in e for e in errors)
 
@@ -171,19 +187,25 @@ def test_validate_threshold_range():
 
     A threshold of 1.5 (150%) is invalid — it's not a percentage.
     """
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "a": {
-                "model": "test", "max_tokens": 1000,
-                "use_for": ["code"], "provider": "test",
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "a": {
+                    "model": "test",
+                    "max_tokens": 1000,
+                    "use_for": ["code"],
+                    "provider": "test",
+                },
+                "b": {
+                    "model": "test2",
+                    "max_tokens": 1000,
+                    "use_for": ["spec"],
+                    "provider": "test",
+                },
             },
-            "b": {
-                "model": "test2", "max_tokens": 1000,
-                "use_for": ["spec"], "provider": "test",
-            },
-        },
-        "escalation": {"default_threshold": 1.5},
-    })
+            "escalation": {"default_threshold": 1.5},
+        }
+    )
     errors = TierForgeConfigLoader.validate(config)
     assert any("between 0.0 and 1.0" in e for e in errors)
 
@@ -194,18 +216,24 @@ def test_from_dict_preserves_tier_order():
     Python 3.7+ dicts preserve insertion order, and PyYAML preserves
     YAML mapping order.  This order determines escalation priority.
     """
-    config = TierForgeConfigLoader.from_dict({
-        "tiers": {
-            "alpha": {
-                "model": "a", "max_tokens": 1000,
-                "use_for": ["x"], "provider": "test",
-            },
-            "beta": {
-                "model": "b", "max_tokens": 1000,
-                "use_for": ["y"], "provider": "test",
-            },
+    config = TierForgeConfigLoader.from_dict(
+        {
+            "tiers": {
+                "alpha": {
+                    "model": "a",
+                    "max_tokens": 1000,
+                    "use_for": ["x"],
+                    "provider": "test",
+                },
+                "beta": {
+                    "model": "b",
+                    "max_tokens": 1000,
+                    "use_for": ["y"],
+                    "provider": "test",
+                },
+            }
         }
-    })
+    )
     tiers = list(config.tiers.keys())
     assert tiers == ["alpha", "beta"]
 
@@ -218,14 +246,18 @@ def test_from_dict_invalid_on_exceed():
     validate time, so the error is immediate and clear.
     """
     with pytest.raises(ValueError, match="not a valid OnExceedAction"):
-        TierForgeConfigLoader.from_dict({
-            "tiers": {
-                "a": {
-                    "model": "test", "max_tokens": 1000,
-                    "use_for": ["code"], "provider": "test",
+        TierForgeConfigLoader.from_dict(
+            {
+                "tiers": {
+                    "a": {
+                        "model": "test",
+                        "max_tokens": 1000,
+                        "use_for": ["code"],
+                        "provider": "test",
+                    },
                 },
-            },
-            "budgets": {
-                "per_task": {"limit": 0.10, "on_exceed": "invalid_option"},
-            },
-        })
+                "budgets": {
+                    "per_task": {"limit": 0.10, "on_exceed": "invalid_option"},
+                },
+            }
+        )
