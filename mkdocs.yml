@@ -1,0 +1,12 @@
+site_name: ai-tierforge
+site_description: AI model router — routes LLM requests to the optimal model based on cost, latency, and capability
+nav:
+  - Home: index.md
+  - Field Test Plan: field-test-plan.md
+  - Test Results:
+    - Pass 1: 1st-test-pass-synthetic-data.md
+    - Pass 2: pass2-synthetic-data.md
+    - Pass 3: pass3-real-data.md
+  - PRD: PRD.md
+  - SPEC: SPEC.md
+  - WBS: WBS.md

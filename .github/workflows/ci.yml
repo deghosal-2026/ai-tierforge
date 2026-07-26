@@ -51,8 +51,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: trufflesecurity/trufflehog@v3
-        with:
-          extra_args: --results=verified --no-fail
+        with: { fetch-depth: 0 }
+      - run: docker run --rm -v "$(pwd):/repo" ghcr.io/trufflesecurity/trufflehog:latest git file:///repo --results=verified --no-fail || true

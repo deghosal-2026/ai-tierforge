@@ -4,8 +4,11 @@ Route LLM calls to the right model. Track what each task actually costs. Catch w
 
 [![CI](https://github.com/deghosal-2026/ai-tierforge/actions/workflows/ci.yml/badge.svg)](https://github.com/deghosal-2026/ai-tierforge/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/ai-tierforge)](https://pypi.org/project/ai-tierforge/)
+[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
+[![Type checked](https://img.shields.io/badge/mypy-strict-blue)](https://github.com/python/mypy)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13800/badge)](https://www.bestpractices.dev/projects/13800)
 
 ## Why this exists
