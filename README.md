@@ -304,3 +304,4 @@ MIT
 - **Issues:** [github.com/deghosal-2026/ai-tierforge/issues](https://github.com/deghosal-2026/ai-tierforge/issues) — bug reports and feature requests
 - **Security:** [SECURITY.md](SECURITY.md) — report vulnerabilities privately
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) — coding standards and PR process
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md) — release history
