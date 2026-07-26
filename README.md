@@ -298,3 +298,9 @@ ai-tierforge sits above your existing gateway. It doesn't replace LiteLLM or Por
 ## License
 
 MIT
+
+## Resources
+
+- **Issues:** [github.com/deghosal-2026/ai-tierforge/issues](https://github.com/deghosal-2026/ai-tierforge/issues) — bug reports and feature requests
+- **Security:** [SECURITY.md](SECURITY.md) — report vulnerabilities privately
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) — coding standards and PR process
