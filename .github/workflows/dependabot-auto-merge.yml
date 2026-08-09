@@ -16,15 +16,15 @@ jobs:
         if: steps.fetch.outputs.update-type == 'version-update:semver-patch' || steps.fetch.outputs.update-type == 'version-update:semver-minor'
         run: |
           for i in $(seq 1 45); do
-            status=$(gh pr view "$PR_NUMBER" --json mergeStateStatus -q .mergeStateStatus)
+            status=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json mergeStateStatus -q .mergeStateStatus)
             echo "mergeable_state=$status"
             case "$status" in
-              CLEAN|UNSTABLE|HAS_HOOKS)
-                break
-                ;;
+                CLEAN|UNSTABLE|HAS_HOOKS)
+                    break
+                    ;;
               *)
-                sleep 20
-                ;;
+                    sleep 20
+                    ;;
             esac
           done
         env:
@@ -33,7 +33,7 @@ jobs:
       - name: Merge when ready
         if: steps.fetch.outputs.update-type == 'version-update:semver-patch' || steps.fetch.outputs.update-type == 'version-update:semver-minor'
         run: |
-          if gh pr merge --squash "$PR_NUMBER"; then
+          if gh pr merge --squash "$PR_NUMBER" --repo "${{ github.repository }}"; then
             echo "Merged PR #$PR_NUMBER"
           else
             echo "Skipped PR #$PR_NUMBER (conflicts or failing checks)"
